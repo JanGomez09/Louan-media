@@ -32,7 +32,7 @@ export default function Layout() {
         <Brand />
         {items.map(({ to, label, short, icon: Icon, end }) => (
           <NavLink key={to} to={to} end={end} className="nav-link">
-            <Icon size={22} />
+            <span className="ico"><Icon size={50} /></span>
             <span className="lbl-full">{label}</span>
             <span className="lbl-short">{short || label}</span>
           </NavLink>
