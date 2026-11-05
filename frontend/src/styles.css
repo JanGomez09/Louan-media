@@ -176,3 +176,46 @@ textarea { resize: vertical; }
 .login-card { width: 100%; max-width: 380px; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 28px 24px; display: grid; gap: 4px; }
 .login-card .brand { margin-bottom: 4px; }
 .login-card .btn { margin-top: 6px; }
+
+/* Navegación con 7 secciones: etiquetas cortas en móvil y completas en escritorio */
+.nav-link { font-size: 0.62rem; }
+.lbl-full { display: none; }
+@media (min-width: 860px) {
+  .lbl-full { display: inline; }
+  .lbl-short { display: none; }
+}
+
+/* Calendario */
+select { display: block; width: 100%; margin-top: 6px; padding: 12px 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; }
+label.check { display: flex; align-items: center; gap: 10px; }
+label.check input { width: auto; margin: 0; }
+.h2 { font-size: 1.1rem; margin: 0 0 10px; }
+.cap::first-letter { text-transform: uppercase; }
+.now-line { margin: -8px 0 14px; text-transform: none; }
+.cal-head { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.cal-title { flex: 1; text-align: center; text-transform: capitalize; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-dow { text-align: center; font-size: 0.75rem; color: var(--muted); padding: 4px 0; }
+.cal-day { position: relative; aspect-ratio: 1; min-height: 40px; border: 1px solid transparent; border-radius: 12px; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0; }
+.cal-day.today { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.cal-day.selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.cal-dots { display: flex; gap: 3px; }
+.cal-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+.cal-day.today .cal-dots i { background: var(--accent-ink); }
+.event-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.event-row:first-of-type { border-top: 0; }
+.event-icon { font-size: 1.4rem; }
+.event-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.badge { background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 0.78rem; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+.presets { align-items: center; margin: 12px 0 0; }
+
+/* Poesía sonora */
+.two-cols { display: grid; gap: 0 12px; }
+@media (min-width: 560px) { .two-cols { grid-template-columns: 1fr 1fr; } }
+.search { margin: 0 0 12px; border-radius: 999px; }
+.letters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.letters .chip { min-width: 34px; padding: 4px 8px; text-align: center; }
+.letter { font-family: var(--display); font-style: italic; font-size: 1.8rem; color: var(--accent); margin: 22px 0 8px; scroll-margin-top: 12px; }
+.quote { padding: 16px 18px; margin-bottom: 12px; }
+.quote blockquote { margin: 0 0 12px; padding-left: 14px; border-left: 3px solid var(--accent); font-size: 1.05rem; white-space: pre-line; overflow-wrap: anywhere; }
+.quote-foot { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }

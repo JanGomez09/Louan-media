@@ -1,11 +1,13 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { Home, MessageCircle, PlusSquare, Images, Settings } from 'lucide-react';
+import { Home, MessageCircle, PlusSquare, Images, CalendarDays, Music, Settings } from 'lucide-react';
 
 const items = [
   { to: '/', label: 'Inicio', icon: Home, end: true },
   { to: '/chat', label: 'Chat', icon: MessageCircle },
   { to: '/publicar', label: 'Publicar', icon: PlusSquare },
   { to: '/album', label: 'Álbum', icon: Images },
+  { to: '/calendario', label: 'Calendario', short: 'Fechas', icon: CalendarDays },
+  { to: '/poesia', label: 'Poesía sonora', short: 'Poesía', icon: Music },
   { to: '/config', label: 'Ajustes', icon: Settings },
 ];
 
@@ -26,10 +28,11 @@ export default function Layout() {
     <div className="shell">
       <nav className="nav" aria-label="Secciones">
         <Brand />
-        {items.map(({ to, label, icon: Icon, end }) => (
+        {items.map(({ to, label, short, icon: Icon, end }) => (
           <NavLink key={to} to={to} end={end} className="nav-link">
-            <Icon size={24} />
-            <span>{label}</span>
+            <Icon size={22} />
+            <span className="lbl-full">{label}</span>
+            <span className="lbl-short">{short || label}</span>
           </NavLink>
         ))}
       </nav>

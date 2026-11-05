@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import { ObjectId } from 'mongodb';
-import { bucket, messages, posts, profiles } from './db.js';
+import { bucket, events, messages, posts, profiles, quotes } from './db.js';
 
 const router = Router();
 const MAX_BYTES = 25 * 1024 * 1024; // límite de videos y archivos
@@ -208,6 +208,105 @@ router.post('/posts/:id/comments', async (req, res) => {
   const r = id ? await posts.updateOne({ _id: id }, { $push: { comments: comment } }) : { matchedCount: 0 };
   if (!r.matchedCount) return notFound(res);
   res.status(201).json(commentShape(comment));
+});
+
+/* ---------- Calendario compartido ---------- */
+// Las fechas se guardan como texto "AAAA-MM-DD" (día completo, sin zona horaria),
+// así que se ven en el mismo día en cualquier dispositivo.
+
+const EVENT_TYPES = ['aniversario', 'cumpleanos', 'festividad', 'otro'];
+
+const validDate = (s) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const year = Number(s.slice(0, 4));
+  if (year < 1900 || year > 2200) return false;
+  const d = new Date(`${s}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().startsWith(s); // rechaza 30 de febrero, etc.
+};
+
+const eventShape = (d) => ({
+  id: d._id.toString(),
+  title: d.title,
+  date: d.date,
+  type: d.type,
+  yearly: d.yearly,
+  note: d.note,
+  created_by: d.created_by,
+});
+
+function readEvent(body) {
+  const title = String(body?.title || '').trim();
+  const date = String(body?.date || '');
+  const note = String(body?.note || '').trim().slice(0, 300);
+  if (!title || title.length > 80) return { error: 'El título debe tener entre 1 y 80 caracteres.' };
+  if (!validDate(date)) return { error: 'La fecha no es válida.' };
+  if (!EVENT_TYPES.includes(body?.type)) return { error: 'Tipo de fecha no válido.' };
+  return { value: { title, date, type: body.type, yearly: Boolean(body.yearly), note } };
+}
+
+router.get('/events', async (_req, res) => {
+  const docs = await events.find().sort({ date: 1 }).toArray();
+  res.json(docs.map(eventShape));
+});
+
+router.post('/events', async (req, res) => {
+  const { value, error } = readEvent(req.body);
+  if (error) return bad(res, error);
+  const doc = { ...value, created_by: req.user.uid, created_at: new Date() };
+  const r = await events.insertOne(doc);
+  res.status(201).json(eventShape({ ...doc, _id: r.insertedId }));
+});
+
+router.patch('/events/:id', async (req, res) => {
+  const id = toId(req.params.id);
+  const { value, error } = readEvent(req.body);
+  if (error) return bad(res, error);
+  const doc = id ? await events.findOneAndUpdate({ _id: id }, { $set: value }, { returnDocument: 'after' }) : null;
+  if (!doc) return notFound(res);
+  res.json(eventShape(doc));
+});
+
+router.delete('/events/:id', async (req, res) => {
+  const id = toId(req.params.id);
+  const r = id ? await events.deleteOne({ _id: id }) : { deletedCount: 0 };
+  if (!r.deletedCount) return notFound(res);
+  res.json({ ok: true });
+});
+
+/* ---------- Diccionario de poesía sonora ---------- */
+
+const quoteShape = (d) => ({
+  id: d._id.toString(),
+  artist: d.artist,
+  song: d.song,
+  quote: d.quote,
+  added_by: d.added_by,
+  created_at: iso(d.created_at),
+});
+
+router.get('/quotes', async (_req, res) => {
+  // El orden alfabético (con acentos y ñ) lo aplica el frontend
+  const docs = await quotes.find().toArray();
+  res.json(docs.map(quoteShape));
+});
+
+router.post('/quotes', async (req, res) => {
+  const artist = String(req.body?.artist || '').trim();
+  const song = String(req.body?.song || '').trim();
+  const quote = String(req.body?.quote || '').trim();
+  if (!artist || artist.length > 100) return bad(res, 'El artista debe tener entre 1 y 100 caracteres.');
+  if (!song || song.length > 150) return bad(res, 'La canción debe tener entre 1 y 150 caracteres.');
+  if (!quote || quote.length > 1000) return bad(res, 'La cita debe tener entre 1 y 1000 caracteres.');
+  const doc = { artist, song, quote, added_by: req.user.uid, created_at: new Date() };
+  const r = await quotes.insertOne(doc);
+  res.status(201).json(quoteShape({ ...doc, _id: r.insertedId }));
+});
+
+router.delete('/quotes/:id', async (req, res) => {
+  const id = toId(req.params.id);
+  const r = id ? await quotes.deleteOne({ _id: id, added_by: req.user.uid }) : { deletedCount: 0 };
+  if (!r.deletedCount) return notFound(res, 'Solo puedes borrar las citas que añadiste tú.');
+  res.json({ ok: true });
 });
 
 /* ---------- Chat (historial; los mensajes nuevos van por Socket.IO) ---------- */

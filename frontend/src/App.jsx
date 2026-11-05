@@ -7,6 +7,8 @@ import Chat from './pages/Chat';
 import Album from './pages/Album';
 import Publish from './pages/Publish';
 import Settings from './pages/Settings';
+import Calendar from './pages/Calendar';
+import Poetry from './pages/Poetry';
 
 function Protected() {
   const { user } = useApp();
@@ -32,6 +34,8 @@ export default function App() {
             <Route path="chat" element={<Chat />} />
             <Route path="album" element={<Album />} />
             <Route path="publicar" element={<Publish />} />
+            <Route path="calendario" element={<Calendar />} />
+            <Route path="poesia" element={<Poetry />} />
             <Route path="config" element={<Settings />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
