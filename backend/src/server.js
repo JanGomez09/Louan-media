@@ -18,6 +18,7 @@ app.use(cors({ origin: origins }));
 app.use(express.json({ limit: '1mb' }));
 
 app.get('/health', (_req, res) => res.json({ ok: true }));
+app.get('/', (_req, res) => res.send('Uscial Media API funcionando'));
 app.post('/auth/login', login);
 app.use('/api', requireAuth, router);
 

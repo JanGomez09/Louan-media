@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Home, MessageCircle, PlusSquare, Images, CalendarDays, Music, Settings } from 'lucide-react';
 
 const items = [
@@ -18,12 +18,14 @@ export function Brand() {
         <i />
         <i />
       </span>
-      <span className="brand-name">Uscial Media</span>
+      <span className="brand-name">Louan Uscial Media</span>
     </div>
   );
 }
 
 export default function Layout() {
+  const { pathname } = useLocation();
+
   return (
     <div className="shell">
       <nav className="nav" aria-label="Secciones">
@@ -37,7 +39,9 @@ export default function Layout() {
         ))}
       </nav>
       <main className="main">
-        <Outlet />
+        <div key={pathname} className="page-transition">
+          <Outlet />
+        </div>
       </main>
     </div>
   );

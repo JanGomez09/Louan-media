@@ -219,3 +219,20 @@ label.check input { width: auto; margin: 0; }
 .quote { padding: 16px 18px; margin-bottom: 12px; }
 .quote blockquote { margin: 0 0 12px; padding-left: 14px; border-left: 3px solid var(--accent); font-size: 1.05rem; white-space: pre-line; overflow-wrap: anywhere; }
 .quote-foot { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+
+
+/* Transición entre secciones */
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+.page-transition {
+  animation: page-in 0.28s cubic-bezier(0.22, 0.61, 0.36, 1) backwards;
+}
+.nav-link { transition: color 0.2s ease, background-color 0.2s ease; }
+
+/* Respeta a quien desactiva las animaciones en su dispositivo */
+@media (prefers-reduced-motion: reduce) {
+  .page-transition { animation: none; }
+  .nav-link { transition: none; }
+}
