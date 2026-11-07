@@ -8,6 +8,7 @@ export const posts = db.collection('posts');
 export const messages = db.collection('messages');
 export const events = db.collection('events'); // calendario compartido
 export const quotes = db.collection('quotes'); // diccionario de poesía sonora
+export const pushSubs = db.collection('push_subscriptions'); // dispositivos que reciben notificaciones
 // Fotos, videos y avatares: GridFS divide los archivos en fragmentos dentro de MongoDB
 // (así no aplica el límite de 16 MB por documento).
 export const bucket = new GridFSBucket(db, { bucketName: 'media' });
@@ -15,4 +16,5 @@ export const bucket = new GridFSBucket(db, { bucketName: 'media' });
 /** Conecta a MongoDB (falla al arrancar si la URI es incorrecta). */
 export async function connectDb() {
   await client.connect();
+  await pushSubs.createIndex({ endpoint: 1 }, { unique: true });
 }

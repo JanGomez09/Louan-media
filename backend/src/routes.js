@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import multer from 'multer';
 import { ObjectId } from 'mongodb';
-import { bucket, events, messages, posts, profiles, quotes } from './db.js';
+import { bucket, events, messages, posts, profiles, pushSubs, quotes } from './db.js';
+import { publicKey } from './push.js';
 
 const router = Router();
 const MAX_BYTES = 25 * 1024 * 1024; // límite de videos y archivos
@@ -33,6 +34,11 @@ export const toMsg = (d) => ({
   sender_uid: d.sender_uid,
   text: d.text,
   created_at: iso(d.created_at),
+  edited_at: d.edited_at ? iso(d.edited_at) : null,
+  // Los mensajes anteriores a esta función no tienen read_at: se consideran leídos
+  read_at: d.read_at ? iso(d.read_at) : d.read_at === undefined ? iso(d.created_at) : null,
+  reply: d.reply ? { id: d.reply.id.toString(), sender_uid: d.reply.sender_uid, text: d.reply.text } : null,
+  reactions: d.reactions || {},
 });
 
 /** Guarda un archivo en GridFS y devuelve su id. */
@@ -306,6 +312,31 @@ router.delete('/quotes/:id', async (req, res) => {
   const id = toId(req.params.id);
   const r = id ? await quotes.deleteOne({ _id: id, added_by: req.user.uid }) : { deletedCount: 0 };
   if (!r.deletedCount) return notFound(res, 'Solo puedes borrar las citas que añadiste tú.');
+  res.json({ ok: true });
+});
+
+/* ---------- Notificaciones push ---------- */
+
+router.get('/push/key', (_req, res) => res.json({ key: publicKey() }));
+
+router.post('/push/subscribe', async (req, res) => {
+  const sub = req.body?.subscription;
+  if (!sub || typeof sub.endpoint !== 'string' || !sub.endpoint.startsWith('https://') || !sub.keys?.p256dh || !sub.keys?.auth) {
+    return bad(res, 'Suscripción no válida.');
+  }
+  await pushSubs.updateOne(
+    { endpoint: sub.endpoint },
+    {
+      $set: { uid: req.user.uid, keys: { p256dh: String(sub.keys.p256dh), auth: String(sub.keys.auth) }, updated_at: new Date() },
+      $setOnInsert: { created_at: new Date() },
+    },
+    { upsert: true }
+  );
+  res.status(201).json({ ok: true });
+});
+
+router.post('/push/unsubscribe', async (req, res) => {
+  await pushSubs.deleteOne({ endpoint: String(req.body?.endpoint || ''), uid: req.user.uid });
   res.json({ ok: true });
 });
 

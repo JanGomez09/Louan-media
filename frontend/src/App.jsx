@@ -5,7 +5,6 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Chat from './pages/Chat';
 import Album from './pages/Album';
-import Publish from './pages/Publish';
 import Settings from './pages/Settings';
 import Calendar from './pages/Calendar';
 import Poetry from './pages/Poetry';
@@ -33,7 +32,7 @@ export default function App() {
             <Route index element={<Dashboard />} />
             <Route path="chat" element={<Chat />} />
             <Route path="album" element={<Album />} />
-            <Route path="publicar" element={<Publish />} />
+            <Route path="publicar" element={<Navigate to="/album" replace />} />
             <Route path="calendario" element={<Calendar />} />
             <Route path="poesia" element={<Poetry />} />
             <Route path="config" element={<Settings />} />

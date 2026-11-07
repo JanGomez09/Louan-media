@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { api, getToken, login, setToken } from './api';
+import { unsubscribePush } from './push';
 
 const Ctx = createContext(null);
 export const useApp = () => useContext(Ctx);
@@ -46,7 +47,8 @@ export function AppProvider({ children }) {
     [hydrate]
   );
 
-  const signOut = useCallback(() => {
+  const signOut = useCallback(async () => {
+    await unsubscribePush().catch(() => {}); // antes de borrar el token, para poder avisar al servidor
     setToken(null);
     clear();
   }, [clear]);

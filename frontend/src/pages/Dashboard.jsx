@@ -26,7 +26,7 @@ export default function Dashboard() {
       {posts?.length === 0 && (
         <div className="empty">
           <p>Todavía no hay publicaciones.</p>
-          <Link className="btn" to="/publicar">Publicar una foto</Link>
+          <Link className="btn" to="/album">Elegir una foto para publicar</Link>
         </div>
       )}
       {posts?.map((p) => (
